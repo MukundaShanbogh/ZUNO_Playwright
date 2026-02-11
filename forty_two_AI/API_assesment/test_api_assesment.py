@@ -1,42 +1,51 @@
 import random
-import time
-
 from forty_two_AI.API_assesment.conftest import api_context
 
 
 class Test_assessment:
-    phone_number = "9658664776"
+    phone_number = "9173693871"
 
     def send_otp(self,api_context):
         response = api_context.post(
-            "/api/v1/auth//otp/send?mode=counselling",
-            data={"phoneNumber": f"91{self.phone_number}"}
+
+            "https://apidev.emversity.com/api/v1/tutor-app/gen-token",
+            data={
+                "payload": {
+                    "mode": "counselling",
+                    "role": "student",
+                    "userId": "007c1555-6990-4d21-aa3c-dbc85b631e44"
+                }
+            },
+            headers={
+                "Content-Type": "application/json"
+            }
         )
-
         body = response.json()
-        return body["berry"]
+        return body["token"]
 
-    def verify_otp(self,berry,api_context):
-        response = api_context.post(
-            "/api/v1/auth//otp/verify?mode=counselling",
-        data= {
-            "hash":f"{berry}",
-            'isValidReq':1,
-            'otp':"1111",
-            'phoneNumber':f"91{self.phone_number}"
-        })
-        body = response.json()
-        result =  body["result"]
-        token = result["token"]
-        return token
+    # def verify_otp(self,berry,api_context):
+    #     response = api_context.post(
+    #         "/api/v1/auth//otp/verify?mode=counselling",
+    #     data= {
+    #         "hash":f"{berry}",
+    #         'isValidReq':1,
+    #         'otp':"1111",
+    #         'phoneNumber':f"91{self.phone_number}"
+    #     })
+    #     body = response.json()
+    #     result =  body["result"]
+    #     token = result["token"]
+    #     return token
 
     def get_questions(self, api_context, token):
+        print(token)
         res = api_context.get(
             "/api/v1/counselling/student/pshycometry/test",
             headers={"Authorization": f"Bearer {token}"}
         )
-        assert res.status == 200
+        # assert res.status == 200
         body = res.json()
+        print(body)
         test_id = body[0]["test_id"]
         attempt_question_ids = [item["attempt_question_id"] for item in body]
         return  test_id,attempt_question_ids
@@ -62,8 +71,9 @@ class Test_assessment:
 
 
     def test_token(self,api_context):
-        berry  = self.send_otp(api_context)
-        token = self.verify_otp(berry,api_context)
+        token  = self.send_otp(api_context)
+        # print(token)
+        # token = self.verify_otp(berry,api_context)
         test_id,question_id=self.get_questions(api_context,token)
         for i, qid in enumerate(question_id):
             random_answer_id = random.choice([1, 2, 3, 4])

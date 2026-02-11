@@ -1,5 +1,4 @@
 from playwright.sync_api import expect
-from forty_two_AI.locators.Home_locators import home_page_locators
 from forty_two_AI.locators.login_locators import login_page_locators
 
 
@@ -10,7 +9,6 @@ class login_page:
 
     def login(self,phone_number):
         lgl = login_page_locators()
-        hpl = home_page_locators()
         self.page.get_by_placeholder(lgl.phone_number).fill(phone_number)
         self.page.get_by_role("button",name= lgl.send_otp_btn).click()
         otp_input = self.page.locator(lgl.Otp_input)
